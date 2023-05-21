@@ -72,19 +72,22 @@ class VideoPlayerActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if(requestCode == PICK_VIDEO_REQUEST_CODE && requestCode == RESULT_OK){
-            val videoUri = data?.data
-            binding.videoView.requestFocus()
-            binding.videoView.setVideoURI(videoUri)
 
-            binding.videoView.setOnCompletionListener {
+            if(requestCode == PICK_VIDEO_REQUEST_CODE && resultCode == RESULT_OK) {
+                val videoUri = data?.data
+                binding.videoView.requestFocus()
+                binding.videoView.setVideoURI(videoUri)
+
+            binding.videoView?.setOnCompletionListener {
                 binding.videoView?.seekTo(0)
                 binding.seekBar.progress=0
             }
+
             startVideoPlayer()
 
         }
     }
+
 
 
     private fun startVideoPlayer() {
