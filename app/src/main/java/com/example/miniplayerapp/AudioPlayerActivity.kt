@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.widget.SeekBar
 import com.example.miniplayerapp.databinding.ActivityAudioPlayerBinding
 import com.example.miniplayerapp.databinding.ActivityVideoPlayerBinding
+import java.util.*
 
 class AudioPlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAudioPlayerBinding
@@ -36,10 +37,11 @@ class AudioPlayerActivity : AppCompatActivity() {
                 isPlaying = true
             }
         }
-        mediaPlayer.setOnPreparedListener {
+        mediaPlayer.setOnPreparedListener {audioPlayer->
             mediaPlayer.start()
             binding.playPause.text = "pause"
             isPlaying = true
+            binding.seekBar.max=audioPlayer.duration
         }
 
         mediaPlayer.setOnCompletionListener {
@@ -47,6 +49,21 @@ class AudioPlayerActivity : AppCompatActivity() {
             binding.playPause.text = "play"
         }
 
+        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser){
+                    mediaPlayer.seekTo(progress*1000)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+               mediaPlayer.pause()
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                mediaPlayer.start()
+            }
+        })
 
 
     }
@@ -59,7 +76,36 @@ class AudioPlayerActivity : AppCompatActivity() {
             mediaPlayer.reset()
             mediaPlayer.setDataSource(applicationContext,uri)
             mediaPlayer.prepare()
+
+            mediaPlayer.setOnCompletionListener {
+                mediaPlayer.seekTo(0)
+                binding.seekBar.progress=0
+            }
+                startAudioPlayer()
         }
+    }
+
+    private fun startAudioPlayer() {
+        mediaPlayer.start()
+        val duration = mediaPlayer.duration?:0
+        binding.seekBar.max = duration
+        Timer().scheduleAtFixedRate(object : TimerTask(){
+            override fun run() {
+                val currentPosition = mediaPlayer.currentPosition?:0
+                binding.seekBar.progress = currentPosition
+            }
+
+        },0,1000)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        stopAudioPlayer()
+    }
+
+    private fun stopAudioPlayer() {
+        mediaPlayer.stop()
+        binding.seekBar.progress = 0
     }
 
     override fun onDestroy() {
