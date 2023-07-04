@@ -52,7 +52,7 @@ class AudioPlayerActivity : AppCompatActivity() {
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser){
-                    mediaPlayer.seekTo(progress*1000)
+                    mediaPlayer.seekTo(progress)
                 }
             }
 
